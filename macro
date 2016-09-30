@@ -1,0 +1,69 @@
+Sub macro()
+‘up speed and hide flash screen
+Application.ScreenUpdating = False
+    Dim ct, ct2, r As Long
+    Dim search_cel, new_col_report, old_col_report As Range
+    Dim old_rep_sh, new_rep_sheet, old_rows_sh, new_rows_sh, change_val_sh As Worksheet
+    Set old_rep_sh = Sheets(2)
+    Set new_rep_sheet = Sheets(1)
+    Set old_rows_sh = Sheets(3)
+    Set new_rows_sh = Sheets(4)
+    Set change_val_sh = Sheets(5)
+    ‘clean withou t head the sheets  old,new and change 
+    old_rows_sh.UsedRange.Offset(1, 0).ClearContents
+    new_rows_sh.UsedRange.Offset(1, 0).ClearContents
+    change_val_sh.UsedRange.Offset(1, 0).ClearContents
+    ‘search of last row 
+    new_lastrow = new_rep_sheet.UsedRange.Row - 1 + new_rep_sheet.UsedRange.Rows.Count
+    old_lastrow = old_rep_sh.UsedRange.Row - 1 + old_rep_sh.UsedRange.Rows.Count
+    ‘filter first page ,filed number it mean number of column from left to right
+    ActiveSheet.UsedRange.AutoFilter Field:=3, Criteria1:="Deployed"
+    ActiveSheet.UsedRange.AutoFilter Field:=7, Criteria1:="Software"
+    ActiveSheet.UsedRange.AutoFilter Field:=8, Criteria1:="Application"
+    ActiveSheet.UsedRange.AutoFilter Field:=9, Criteria1:="Application"
+    ActiveSheet.UsedRange.AutoFilter Field:=10, Criteria1:="Application"
+    ‘creat range of index matching
+    Set new_col_report = Sheets(1).Range("A2:A" & new_lastrow).SpecialCells(xlCellTypeVisible)
+    Set old_col_report = old_rep_sh.Range("A2:A" & old_lastrow).SpecialCells(xlCellTypeVisible)
+    ct = 2
+    ct2 = 2
+‘loop searching and matching
+    For Each cel In new_col_report
+‘not blank
+        
+If Not IsEmpty(cel.Value) Then
+‘look up if matching
+            Set search_cel = old_col_report.Find(cel.Value, LookIn:=xlValues)
+‘match found
+            If Not search_cel Is Nothing Then
+       ‘copy to new rows
+                cel.EntireRow.Copy new_rows_sh.Rows(ct)
+‘copy to old rows
+                search_cel.EntireRow.Copy old_rows_sh.Rows(ct)
+                ‘condition if change value
+                If _
+                new_rows_sh.Cells(ct, "F") <> old_rows_sh.Cells(ct, "F") Or _
+                new_rows_sh.Cells(ct, "AC") <> old_rows_sh.Cells(ct, "AC") Or _
+                new_rows_sh.Cells(ct, "AD") <> old_rows_sh.Cells(ct, "AD") Or _
+                new_rows_sh.Cells(ct, "AE") <> old_rows_sh.Cells(ct, "AE") Or _
+                new_rows_sh.Cells(ct, "AF") <> old_rows_sh.Cells(ct, "AF") Or _
+                new_rows_sh.Cells(ct, "AG") <> old_rows_sh.Cells(ct, "AG") Or _
+                new_rows_sh.Cells(ct, "AI") <> old_rows_sh.Cells(ct, "AI") Or _
+                new_rows_sh.Cells(ct, "AJ") <> old_rows_sh.Cells(ct, "AJ") Or _
+                new_rows_sh.Cells(ct, "AK") <> old_rows_sh.Cells(ct, "AK") _
+                Then
+‘if true copy to change value sheet
+                    old_rows_sh.Rows(ct).Copy change_val_sh.Rows(ct2)
+                    new_rows_sh.Rows(ct).Copy change_val_sh.Rows(ct2 + 1)
+                    ct2 = ct2 + 2
+                End If
+                ct = ct + 1
+            End If
+        End If
+        search_cel = Null
+    Next cel
+    Application.ScreenUpdating = True
+End Sub
+
+
+
