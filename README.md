@@ -1,0 +1,2 @@
+# extractmacro
+macro
