@@ -1,0 +1,90 @@
+Sub macro()
+Application.ScreenUpdating = False
+    Dim ct, ct1, ct2, r As Long
+    Dim search_cel, new_col_report, old_col_report As Range
+    Dim old_rep_sh, new_rep_sheet, old_rows_sh, new_rows_sh, change_val_sh As Worksheet
+    Set old_rep_sh = Sheets(2)
+    Set new_rep_sheet = Sheets(1)
+    Set old_rows_sh = Sheets(3)
+    Set new_rows_sh = Sheets(4)
+    Set change_val_sh = Sheets(5)
+    
+    old_rows_sh.UsedRange.Offset(1, 0).ClearContents
+    new_rows_sh.UsedRange.Offset(1, 0).ClearContents
+    change_val_sh.UsedRange.Offset(1, 0).ClearContents
+    
+    new_lastrow = new_rep_sheet.UsedRange.Row - 1 + new_rep_sheet.UsedRange.Rows.Count
+    old_lastrow = old_rep_sh.UsedRange.Row - 1 + old_rep_sh.UsedRange.Rows.Count
+    
+       
+
+    
+    new_rep_sheet.UsedRange.AutoFilter Field:=3, Criteria1:="Deployed"
+    new_rep_sheet.UsedRange.AutoFilter Field:=7, Criteria1:="Software"
+    new_rep_sheet.UsedRange.AutoFilter Field:=8, Criteria1:="Application"
+    new_rep_sheet.UsedRange.AutoFilter Field:=9, Criteria1:="Application"
+    new_rep_sheet.UsedRange.AutoFilter Field:=10, Criteria1:="Application"
+    
+    old_rep_sh.UsedRange.AutoFilter Field:=3, Criteria1:="Deployed"
+    old_rep_sh.UsedRange.AutoFilter Field:=7, Criteria1:="Software"
+    old_rep_sh.UsedRange.AutoFilter Field:=8, Criteria1:="Application"
+    old_rep_sh.UsedRange.AutoFilter Field:=9, Criteria1:="Application"
+    old_rep_sh.UsedRange.AutoFilter Field:=10, Criteria1:="Application"
+    
+    Set new_col_report = Sheets(1).Range("A2:A" & new_lastrow).SpecialCells(xlCellTypeVisible)
+    Set old_col_report = old_rep_sh.Range("A2:A" & old_lastrow).SpecialCells(xlCellTypeVisible)
+    ct = 2
+    ct1 = 2
+    ct2 = 2
+    For Each cel In new_col_report
+        If Not IsEmpty(cel.Value) Then
+            Set search_cel = old_col_report.Find(cel.Value, LookIn:=xlValues)
+            If Not search_cel Is Nothing Then
+                'cel.EntireRow.Copy new_rows_sh.Rows(ct)
+                'search_cel.EntireRow.Copy old_rows_sh.Rows(ct)
+                ct = cel.Row
+                ct1 = search_cel.Row
+                If _
+                new_rep_sheet.Cells(ct, "F") <> old_rep_sh.Cells(ct1, "F") Or _
+                new_rep_sheet.Cells(ct, "AC") <> old_rep_sh.Cells(ct1, "AC") Or _
+                new_rep_sheet.Cells(ct, "AD") <> old_rep_sh.Cells(ct1, "AD") Or _
+                new_rep_sheet.Cells(ct, "AE") <> old_rep_sh.Cells(ct1, "AE") Or _
+                new_rep_sheet.Cells(ct, "AF") <> old_rep_sh.Cells(ct1, "AF") Or _
+                new_rep_sheet.Cells(ct, "AG") <> old_rep_sh.Cells(ct1, "AG") Or _
+                new_rep_sheet.Cells(ct, "AI") <> old_rep_sh.Cells(ct1, "AI") Or _
+                new_rep_sheet.Cells(ct, "AJ") <> old_rep_sh.Cells(ct1, "AJ") Or _
+                new_rep_sheet.Cells(ct, "AK") <> old_rep_sh.Cells(ct1, "AK") _
+                Then
+                    search_cel.EntireRow.Copy change_val_sh.Rows(ct2)
+                    cel.EntireRow.Copy change_val_sh.Rows(ct2 + 1)
+                    ct2 = ct2 + 2
+                End If
+                Else
+                cel.EntireRow.Copy new_rows_sh.Rows(ct)
+                ct = ct + 1
+            End If
+        End If
+        search_cel = Null
+    Next cel
+          '/////////////////////////////////////////////////
+     ct = 2
+    ct1 = 2
+    ct2 = 2
+    For Each cel In old_col_report
+        If Not IsEmpty(cel.Value) Then
+            Set search_cel = new_col_report.Find(cel.Value, LookIn:=xlValues)
+            If search_cel Is Nothing Then
+                cel.EntireRow.Copy old_rows_sh.Rows(ct)
+                ct = ct + 1
+               
+            End If
+        End If
+        search_cel = Null
+    Next cel
+    '///////////////////////////////////////////////////
+  
+    Application.ScreenUpdating = True
+End Sub
+
+
+
